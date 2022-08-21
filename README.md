@@ -26,4 +26,4 @@ Path: `config/config.json`
 | export_html      | Export HTML Report                                                                             | bool   | true    |
 | export_xlsx      | Export [UIGF.W](https://github.com/DGP-Studio/Snap.Genshin/wiki/StandardFormat) Excel Workbook | bool   | true    |
 | export_uigf_json | Export [UIGF.J](https://github.com/DGP-Studio/Snap.Genshin/wiki/StandardFormat) JSON           | bool   | true    |
-| url              | getGachaLog url                                                                                | string |         |
+| url              | getGachaLog url: `https://hk4e-api.mihoyo.com/event/gacha_info/api/getGachaLog?*`              | string |         |
