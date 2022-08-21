@@ -5,20 +5,17 @@ from urllib import parse
 import os
 import re
 import shutil
-from config import Config
+from config import config, gachaTypeDict
 from time import sleep
 import traceback
-from gacha_metadata import (
-    gachaQueryTypeIds,
-    gachaQueryTypeDict,
-)
 from utils import logger
-from path import ConfigFilePath, DataPath
+from path import DataPath
 
 
 class Genshan:
-    def __init__(self, url) -> None:
+    def __init__(self, url, wishTypes) -> None:
         self.url = self.toApi(url)
+        self.wishTypes = wishTypes
 
     def toApi(self, url):
 
@@ -75,7 +72,7 @@ class Genshan:
         end_id = "0"
         for page in range(1, 9999):
 
-            logger.info(f"getting: {gachaQueryTypeDict[gachaTypeId]}, page: {page}")
+            logger.info(f"getting: {gachaTypeDict[gachaTypeId]}, page: {page}")
 
             api = self.getApi(gachaTypeId, size, page, end_id)
             r = requests.get(api)
@@ -92,34 +89,37 @@ class Genshan:
         return gachaList
 
     def mergeDataFunc(self, localData, gachaData):
-        for banner in gachaQueryTypeDict:
-            bannerLocal = localData["gachaLog"][banner]
-            bannerGet = gachaData["gachaLog"][banner]
-            if bannerGet == bannerLocal:
+        for type in gachaTypeDict:
+            localGachaLog = []
+            thisGachaLog = []
+            try:
+                localGachaLog = localData["gachaLog"][type]
+                thisGachaLog = gachaData["gachaLog"][type]
+            except:
+                pass
+            if thisGachaLog == localGachaLog:
                 pass
             else:
-                flaglist = [1] * len(bannerGet)
-                loc = [[i["time"], i["name"]] for i in bannerLocal]
-                for i in range(len(bannerGet)):
-                    gachaGet = bannerGet[i]
+                flag = [1] * len(thisGachaLog)
+                loc = [[i["time"], i["name"]] for i in localGachaLog]
+                for i in range(len(thisGachaLog)):
+                    gachaGet = thisGachaLog[i]
                     get = [gachaGet["time"], gachaGet["name"]]
                     if get in loc:
                         pass
                     else:
-                        flaglist[i] = 0
+                        flag[i] = 0
 
                 tempData = []
-                for i in range(len(bannerGet)):
-                    if flaglist[i] == 0:
-                        gachaGet = bannerGet[i]
+                for i in range(len(thisGachaLog)):
+                    if flag[i] == 0:
+                        gachaGet = thisGachaLog[i]
                         tempData.insert(0, gachaGet)
                 logger.info(
-                    "merge {} added: {}".format(
-                        gachaQueryTypeDict[banner], len(tempData)
-                    )
+                    "merge {} added: {}".format(gachaTypeDict[type], len(tempData))
                 )
                 for i in tempData:
-                    localData["gachaLog"][banner].insert(0, i)
+                    localData["gachaLog"][type].insert(0, i)
 
         return localData
 
@@ -131,7 +131,7 @@ class Genshan:
 
         gachaData = {}
         gachaData["gachaLog"] = {}
-        for gachaTypeId in gachaQueryTypeIds:
+        for gachaTypeId in self.wishTypes:
             gachaLog = self.getGachaLogs(gachaTypeId)
             gachaData["gachaLog"][gachaTypeId] = gachaLog
 
@@ -152,7 +152,7 @@ class Genshan:
         else:
             self.data = gachaData
 
-        self.data["gachaType"] = gachaQueryTypeDict
+        self.data["gachaType"] = gachaTypeDict
 
     def save(self):
         # # 抽卡报告读取 gachaData.json
@@ -171,7 +171,7 @@ class Genshan:
         ) as f:
             json.dump(self.data, f, ensure_ascii=False, sort_keys=False, indent=4)
 
-        if s.getKey("auto_archive"):
+        if config.getKey("auto_archive"):
             logger.info("archive files")
             archive_path = os.path.join(DataPath, "archive")
             if not os.path.exists(archive_path):
@@ -204,17 +204,17 @@ class Genshan:
                         pass
 
     def export(self):
-        if s.getKey("export_uigf_json"):
+        if config.getKey("export_uigf_json"):
             import export_uigf
 
             export_uigf.write(self.uid, self.data, self.startTime)
 
-        if s.getKey("export_xlsx"):
+        if config.getKey("export_xlsx"):
             import export_xlsx
 
             export_xlsx.write(self.uid, self.data, self.startTime)
 
-        if s.getKey("export_html"):
+        if config.getKey("export_html"):
             import export_html
 
             export_html.write(self.uid, self.data)
@@ -227,8 +227,6 @@ class Genshan:
 
 
 if __name__ == "__main__":
-    s = Config(ConfigFilePath)
-
-    gs = Genshan(s.getKey("url"))
+    gs = Genshan(config.getKey("url"), config.getKey("wish_types"))
 
     gs.main()

@@ -1,10 +1,7 @@
 import time
-from gacha_metadata import (
-    gachaQueryTypeIds,
-    gachaQueryTypeDict,
-)
 from utils import logger
 from path import GachaReportFilePath
+from config import config, gachaTypeDict
 
 
 def get_banner(gacha_type, detail):
@@ -20,7 +17,7 @@ def get_banner(gacha_type, detail):
 
     return f"""
     <div class="col-md-12 col-lg-6 col-xl-6" style="border: 0 2rem;">
-      <h2>{gachaQueryTypeDict[gacha_type]}<a style="font-size:10px">{detail[gacha_type]["start_time"]}</a></h2>
+      <h2>{gachaTypeDict[gacha_type]}<a style="font-size:10px">{detail[gacha_type]["start_time"]}</a></h2>
       <div class="table-responsive">
         <table style="display: inline-table; min-width: max-content;">
           <thead>
@@ -86,7 +83,7 @@ def write(uid, gachaLog):
         logger.debug(
             "处理卡池: {} {} 数量: {}",
             key,
-            gachaQueryTypeDict.get(key, key),
+            gachaTypeDict.get(key, key),
             len(gachaDictList),
         )
         detail[key] = {
@@ -229,7 +226,7 @@ def write(uid, gachaLog):
     </style>
     """
     html_body = ""
-    for gacha_type in gachaQueryTypeIds:
+    for gacha_type in config.getKey("wish_types"):
         html_body += get_banner(gacha_type, detail)
     export_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     html = html.format(html_head, export_time, uid, html_body)

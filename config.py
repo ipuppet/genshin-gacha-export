@@ -1,5 +1,14 @@
 import json
 from utils import logger
+from path import ConfigFilePath
+
+gachaTypeDict = {
+    "100": "新手祈愿",
+    "200": "常驻祈愿",
+    "301": "角色活动祈愿",
+    "302": "武器活动祈愿",
+    "400": "角色活动祈愿-2",
+}
 
 
 class Config:
@@ -9,6 +18,7 @@ class Config:
         "export_xlsx": True,
         "export_uigf_json": True,
         "url": "",
+        "wish_types": ["100", "200", "301", "302"],
     }
     path = ""
 
@@ -48,3 +58,6 @@ class Config:
             json.dumps(self.setting, sort_keys=True, indent=4, separators=(",", ":"))
         )
         f.close()
+
+
+config = Config(ConfigFilePath)

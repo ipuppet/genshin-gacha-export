@@ -1,9 +1,9 @@
 import os
 import time
 import json
-from gacha_metadata import gachaQueryTypeIds
 from utils import logger
 from path import DataPath
+from config import config
 
 
 def id_generator():
@@ -33,7 +33,7 @@ def convert(uid, gachaLog):
     UIGF_data["info"]["export_timestamp"] = int(time.time())
     all_gachaDictList = []
 
-    for gacha_type in gachaQueryTypeIds:
+    for gacha_type in config.getKey("wish_types"):
         gacha_log = gachaLog.get(gacha_type, [])
         gacha_log = sorted(gacha_log, key=lambda gacha: gacha["time"], reverse=True)
         gacha_log.reverse()

@@ -1,8 +1,5 @@
 import os
-from gacha_metadata import (
-    gachaQueryTypeDict,
-    gacha_type_dict,
-)
+from config import gachaTypeDict
 from utils import logger
 from export_uigf import convert
 from path import DataPath
@@ -23,7 +20,7 @@ def write(uid, gachaLog, t):
     workbook = xlsxwriter.Workbook(workbook_path)
     for key in gachaLog:
         gachaDictList = gachaLog[key][::-1]
-        gachaTypeName = gachaQueryTypeDict[key]
+        gachaTypeName = gachaTypeDict[key]
         logger.debug("开始写入 {} {}", gachaTypeName, len(gachaDictList))
         worksheet = workbook.add_worksheet(gachaTypeName)
         content_css = workbook.add_format(
@@ -61,7 +58,7 @@ def write(uid, gachaLog, t):
             rank_type = gacha["rank_type"]
             gacha_type = gacha["gacha_type"]
             uid = gacha["uid"]
-            gacha_type_name = gacha_type_dict.get(gacha_type, "")
+            gacha_type_name = gachaTypeDict.get(gacha_type, "")
             counter = counter + 1
             pity_counter = pity_counter + 1
             excel_data = [
