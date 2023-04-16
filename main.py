@@ -66,8 +66,8 @@ class Genshan:
         return api
 
     def getGachaLogs(self, gachaTypeId):
-        size = "20"
         # api 限制一页最大 20
+        size = "20"
         gachaList = []
         end_id = "0"
         for page in range(1, 9999):
@@ -88,7 +88,7 @@ class Genshan:
 
         return gachaList
 
-    def mergeDataFunc(self, localData, gachaData):
+    def mergeData(self, localData, gachaData):
         for type in gachaTypeDict:
             localGachaLog = []
             thisGachaLog = []
@@ -148,14 +148,14 @@ class Genshan:
         if os.path.isfile(localDataFilePath):
             with open(localDataFilePath, "r", encoding="utf-8") as f:
                 localData = json.load(f)
-            self.data = self.mergeDataFunc(localData, gachaData)
+            self.data = self.mergeData(localData, gachaData)
         else:
             self.data = gachaData
 
         self.data["gachaType"] = gachaTypeDict
 
     def save(self):
-        # # 抽卡报告读取 gachaData.json
+        # 抽卡报告读取 gachaData.json
         # with open(os.path.join(DataPath, "gachaData.json"), "w", encoding="utf-8") as f:
         #     json.dump(mergeData, f, ensure_ascii=False, sort_keys=False, indent=4)
         # 待合并数据 gachaData-{uid}.json
